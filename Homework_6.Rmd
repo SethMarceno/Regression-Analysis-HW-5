@@ -1,0 +1,128 @@
+---
+title: "Homework 6"
+author: "Seth Marceno"
+date: "5/30/2019"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+load('HW_6.RData')
+library(car)
+library(alr4)
+```
+
+#Question 1
+B1 = 0.719 is the expected change in lpsa when X1 = lcavol is increased by 1 unit. On top of this, we can use B1 to find the percentage change in E(psa) when lcavol changes by 100p%, holding all else consant, using the equation 100[(1+p)^B1 - 1].
+
+
+#Question 2
+
+##Part(a)
+B0 in our example represents the average salary of our base group, which is men. Thus, on average, men in the 1970s earned a salary of $24,679. Similarly, B1 represents the average difference in salary between our two groups men and women. Therefore, on average, in the 1970s, women would earn on average $21,357, $3,340 less than the average male. 
+
+##Part(b)
+An explanation for why the coefficient could change signs is that in the first regression, it did not take into account womens long term careers. The college may have many positions with a low retention rate every year filled by women. Because of this, many women would have lower salariers becuase they werent working long term and did not have a chance to get promoted, and so on. Thus, by introducing the year variable it negates the fact many women may have had low paying salaries, which drove their average salary down.
+
+#Question 3
+
+##Part(a)
+```{r, warning=FALSE}
+data("cakes")
+X1 <- cakes$X1
+X2 <- cakes$X2
+X1X2 <- X1*X2
+Y <- cakes$Y
+fit1 <- lm(Y ~ X1 + X2 + I(X1^2) + I(X2^2) + X1X2)
+summary(fit1)
+```
+Thus, from our summary function we can see that all of the P-values are less than .005. All are at least significant at the 99% level.
+
+##Part(b)
+
+```{r}
+Block <- cakes$block
+fit2 <- lm(Y ~ X1 + X2 + I(X1^2) + I(X2^2) + X1X2 + Block)
+summary(fit2)
+```
+Here we can see we see no statistical significance in the main effect on block. Thus, we cannot be confident that its coefficient is anything other than zero. Hence, we conclude that there is no significant difference in palatabilty score between the two blocks. 
+
+
+#Question 4
+
+##Part(a)
+
+```{r, warning=FALSE}
+data("BGSall")
+HT9 <- BGSall$HT9
+HT18 <- BGSall$HT18
+Sex <- BGSall$Sex 
+factor_Sex <- factor(Sex)
+plot(HT18~HT9, pch = c(25, 9)[factor_Sex], col = c(4, 10)[factor_Sex])
+legend('topleft', pch = c(25, 9), legend = c('Male', 'Female'), col = c(4, 10))
+```
+
+Based off of the scatter plot it seems that we should use the mean function E[HT18] = B0 + B1HT9 + B2Sex where Sex is an indicator variable that gives 0 for male and 1 for female, thus B3X3 represents the change in the intercept between the two groups. Hence, we use should use a parallel model as the mean function for the data. A non-parallel model could also be used, but the additional complexity may not give sufficient improvment.    
+
+##Part(b)
+
+```{r}
+full.lm <- lm(HT18 ~ HT9 + Sex + I(HT9*Sex))
+par.lm <- lm(HT18 ~ HT9 + Sex)
+anova(par.lm, full.lm)
+```
+
+##Part(c)
+
+```{r}
+confint(par.lm, level = 0.95, type = 'confidence')
+```
+We can see that the average difference in heights between males and females lies within -12.863cm and -10.528cm with 95% confidence. 
+
+#Question 5
+
+##Part(a)
+
+```{r, warning=FALSE}
+data('infmort')
+mortality <- infmort$mortality
+income <- infmort$income
+region <- infmort$region
+```
+H0: log(mortality) ~ 1 vs. Ha: log(mortality) ~ log(income)
+
+```{r}
+fit3 <- lm(log(mortality) ~ 1)
+fit4 <- lm(log(mortality) ~ log(income))
+anova(fit3, fit4)
+```
+Since our p-value is significant at the 99% level, we reject the null hypothesis that log(mortality) ~ 1 is sufficient. 
+
+##part(b)
+
+This null hypothesis H0: B12 = B2 = 0 is saying that the reduced model, log(mortality) ~ log(income) is a sufficient model to represent the data. Thus, region and the relationship of region and log(income) do not have a significant effect on log(mortality)
+
+##part(c) 
+
+```{r}
+fit5 <- lm(log(mortality) ~ log(income) + region + region*log(income))
+anova(fit4, fit5)
+```
+Based off of our partial F-test, we can see that the full model is statistically significant. Therefore, the predictors region, and all subsequent relationships between the pedictors are significant enought to keep in the model. Hence, we should use the full model. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r, include=FALSE}
+save.image('HW_6.RData')
+```
+
+
